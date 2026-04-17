@@ -1,10 +1,20 @@
 import json
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask_mail import Mail, Message
+from datetime import datetime
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "replace-with-a-secure-value"
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = "duykhanh1911205@gmail.com"
+app.config["MAIL_PASSWORD"] = "pjihyqcnqhktnuev"
+app.config["MAIL_DEFAULT_SENDER"] = "duykhanh1911205@gmail.com"
+
+mail = Mail(app)
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "uploads")
@@ -146,18 +156,82 @@ def milk_tea():
         flash("Vui lòng đăng nhập để xem trang trà sữa.", "error")
         return redirect(url_for("login"))
 
+    def optimize_pexels(url, width=600):
+        url = url.strip()
+        if "images.pexels.com" in url:
+            if "?" in url:
+                return url
+            return f"{url}?auto=compress&cs=tinysrgb&w={width}"
+        return url
+
     products = [
-        {"id": "trasua-tran-chau-den", "name": "Trà sữa trân châu đen", "desc": "Vị trà thơm nhẹ, sữa mịn và trân châu mềm dai.", "price": 25, "image": "https://hunufa.vn/wp-content/uploads/2024/10/hinh-ly-tra-sua-dep-4.webp"},
-        {"id": "trasua-tran-chau-trang", "name": "Trà sữa trân châu trắng", "desc": "Trân châu trắng dai mềm, vị ngọt thanh.", "price": 28, "image": "https://cdn.hstatic.net/200000921537/file/cach-lam-tra-sua-tran-chau-trang_f7254d6ed471486b8ed72956b25c0476_grande.jpg"},
-        {"id": "trasua-thai-xanh", "name": "Trà sữa thái xanh", "desc": "Trà Thái xanh thơm mát, vị đậm đà.", "price": 25, "image": "https://example.com/trasua-thai-xanh.jpg"},
-        {"id": "trasua-kem-cheese", "name": "Trà sữa kem cheese", "desc": "Lớp kem cheese béo mặn, hòa quyện vị trà sữa.", "price": 30, "image": "https://example.com/trasua-kem-cheese.jpg"},
-        {"id": "tra-dao-kem-cheese", "name": "Trà đào kem cheese", "desc": "Đào tươi ngọt lịm, kem cheese mịn màng.", "price": 32, "image": "https://example.com/tra-dao-kem-cheese.jpg"},
-        {"id": "tra-olong-kem-cheese", "name": "Trà ô long kem cheese", "desc": "Trà ô long thơm nồng, kem cheese đậm vị.", "price": 32, "image": "https://example.com/tra-olong-kem-cheese.jpg"},
-        {"id": "trasua-matcha", "name": "Trà sữa matcha", "desc": "Matcha Nhật Bản xanh mịn, vị đắng nhẹ.", "price": 30, "image": "https://example.com/trasua-matcha.jpg"},
-        {"id": "trasua-socola", "name": "Trà sữa socola", "desc": "Socola ngọt đậm, kết hợp trà sữa mịn.", "price": 28, "image": ""},
-        {"id": "trasua-khoai-mon", "name": "Trà sữa khoai môn", "desc": "Khoai môn bùi béo, vị trà thơm nhẹ.", "price": 28, "image": ""},
+        {
+            "id": "trasua-tran-chau-den",
+            "name": "Trà sữa trân châu đen",
+            "desc": "Vị trà thơm nhẹ, sữa mịn và trân châu mềm dai.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/15487855/pexels-photo-15487855.jpeg"),
+        },
+        {
+            "id": "trasua-tran-chau-trang",
+            "name": "Trà sữa trân châu trắng",
+            "desc": "Trân châu trắng dai mềm, vị ngọt thanh.",
+            "price": 28,
+            "image": optimize_pexels("https://images.pexels.com/photos/4013151/pexels-photo-4013151.jpeg"),
+        },
+        {
+            "id": "trasua-thai-xanh",
+            "name": "Trà sữa thái xanh",
+            "desc": "Trà Thái xanh thơm mát, vị đậm đà.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/33766716/pexels-photo-33766716.jpeg"),
+        },
+        {
+            "id": "trasua-kem-cheese",
+            "name": "Trà sữa kem cheese",
+            "desc": "Lớp kem cheese béo mặn, hòa quyện vị trà sữa.",
+            "price": 30,
+            "image": optimize_pexels("https://images.pexels.com/photos/33766716/pexels-photo-33766716.jpeg"),
+        },
+        {
+            "id": "tra-dao-kem-cheese",
+            "name": "Trà đào kem cheese",
+            "desc": "Đào tươi ngọt lịm, kem cheese mịn màng.",
+            "price": 32,
+            "image": optimize_pexels("https://images.pexels.com/photos/33212324/pexels-photo-33212324.jpeg"),
+        },
+        {
+            "id": "tra-olong-kem-cheese",
+            "name": "Trà ô long kem cheese",
+            "desc": "Trà ô long thơm nồng, kem cheese đậm vị.",
+            "price": 32,
+            "image": optimize_pexels("https://images.pexels.com/photos/33766717/pexels-photo-33766717.jpeg"),
+        },
+        {
+            "id": "trasua-matcha",
+            "name": "Trà sữa matcha",
+            "desc": "Matcha Nhật Bản xanh mịn, vị đắng nhẹ.",
+            "price": 30,
+            "image": optimize_pexels("https://images.pexels.com/photos/18794176/pexels-photo-18794176.jpeg"),
+        },
+        {
+            "id": "trasua-socola",
+            "name": "Trà sữa socola",
+            "desc": "Socola ngọt đậm, kết hợp trà sữa mịn.",
+            "price": 28,
+            "image": optimize_pexels("https://images.pexels.com/photos/4071422/pexels-photo-4071422.jpeg"),
+        },
+        {
+            "id": "trasua-khoai-mon",
+            "name": "Trà sữa khoai môn",
+            "desc": "Khoai môn bùi béo, vị trà thơm nhẹ.",
+            "price": 28,
+            "image": optimize_pexels("https://images.pexels.com/photos/5335709/pexels-photo-5335709.jpeg"),
+        },
     ]
+
     return render_template("milk_tea.html", user=user, show_nav=True, products=products)
+
 
 @app.route("/che")
 def che():
@@ -166,26 +240,113 @@ def che():
         flash("Vui lòng đăng nhập để xem trang chè.", "error")
         return redirect(url_for("login"))
 
+    def optimize_pexels(url, width=600):
+        url = url.strip()
+        if "images.pexels.com" in url:
+            if "?" in url:
+                return url
+            return f"{url}?auto=compress&cs=tinysrgb&w={width}"
+        return url
+
     products = [
-        {"id": "che-dau-xanh", "name": "Chè đậu xanh", "desc": "Đậu xanh mịn, nấu nhừ, vị thanh mát.", "price": 20, "image": ""},
-        {"id": "che-dau-den", "name": "Chè đậu đen", "desc": "Đậu đen bùi bùi, ngọt dịu.", "price": 20, "image": ""},
-        {"id": "che-dau-do", "name": "Chè đậu đỏ", "desc": "Đậu đỏ thơm bùi, vị ngọt đậm.", "price": 20, "image": ""},
-        {"id": "che-bap", "name": "Chè bắp", "desc": "Bắp mọng nước, ngọt tự nhiên.", "price": 22, "image": ""},
-        {"id": "che-khuc-bach", "name": "Chè khúc bạch", "desc": "Khúc bạch dai dai, mịn màng.", "price": 25, "image": ""},
-        {"id": "che-thai", "name": "Chè Thái", "desc": "Sầu riêng béo ngậy, thơm nồng.", "price": 28, "image": ""},
-        {"id": "che-trai-cay", "name": "Chè trái cây", "desc": "Đủ các loại trái cây tươi ngon.", "price": 25, "image": ""},
-        {"id": "che-nha-dam", "name": "Chè nha đam", "desc": "Nha đam mát lạnh, giòn sần.", "price": 22, "image": ""},
-        {"id": "che-bo", "name": "Chè bơ", "desc": "Bơ béo ngậy, mịn như kem.", "price": 25, "image": ""},
+        {
+            "id": "che-dau-xanh",
+            "name": "Chè đậu xanh",
+            "desc": "Đậu xanh mịn, nấu nhừ, vị thanh mát.",
+            "price": 20,
+            "image": optimize_pexels("https://images.pexels.com/photos/36211530/pexels-photo-36211530.jpeg"),
+        },
+        {
+            "id": "che-dau-den",
+            "name": "Chè đậu đen",
+            "desc": "Đậu đen bùi bùi, ngọt dịu.",
+            "price": 20,
+            "image": optimize_pexels("https://images.pexels.com/photos/5652183/pexels-photo-5652183.jpeg"),
+        },
+        {
+            "id": "che-dau-do",
+            "name": "Chè đậu đỏ",
+            "desc": "Đậu đỏ thơm bùi, vị ngọt đậm.",
+            "price": 20,
+            "image": optimize_pexels("https://images.pexels.com/photos/5652183/pexels-photo-5652183.jpeg"),
+        },
+        {
+            "id": "che-bap",
+            "name": "Chè bắp",
+            "desc": "Bắp mọng nước, ngọt tự nhiên.",
+            "price": 22,
+            "image": optimize_pexels("https://images.pexels.com/photos/29631481/pexels-photo-29631481.jpeg"),
+        },
+        {
+            "id": "che-khuc-bach",
+            "name": "Chè khúc bạch",
+            "desc": "Khúc bạch dai dai, mịn màng.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/33212602/pexels-photo-33212602.jpeg"),
+        },
+        {
+            "id": "che-thai",
+            "name": "Chè Thái",
+            "desc": "Sầu riêng béo ngậy, thơm nồng.",
+            "price": 28,
+            "image": optimize_pexels("https://images.pexels.com/photos/6063321/pexels-photo-6063321.jpeg"),
+        },
+        {
+            "id": "che-trai-cay",
+            "name": "Chè trái cây",
+            "desc": "Đủ các loại trái cây tươi ngon.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/1242512/pexels-photo-1242512.jpeg"),
+        },
+        {
+            "id": "che-nha-dam",
+            "name": "Chè nha đam",
+            "desc": "Nha đam mát lạnh, giòn sần.",
+            "price": 22,
+            "image": optimize_pexels("https://images.pexels.com/photos/37106997/pexels-photo-37106997.jpeg"),
+        },
+        {
+            "id": "che-bo",
+            "name": "Chè bơ",
+            "desc": "Bơ béo ngậy, mịn như kem.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/1334130/pexels-photo-1334130.jpeg"),
+        },
     ]
 
     hot_products = [
-        {"id": "che-dau-xanh", "name": "Chè đậu xanh", "desc": "Đậu xanh mịn, nấu nhừ, vị thanh mát.", "price": 20, "image": ""},
-        {"id": "che-khuc-bach", "name": "Chè khúc bạch", "desc": "Khúc bạch dai dai, mịn màng.", "price": 25, "image": ""},
-        {"id": "che-thai", "name": "Chè Thái", "desc": "Sầu riêng béo ngậy, thơm nồng.", "price": 28, "image": ""},
-        {"id": "che-trai-cay", "name": "Chè trái cây", "desc": "Đủ các loại trái cây tươi ngon.", "price": 25, "image": ""},
+        {
+            "id": "che-dau-xanh",
+            "name": "Chè đậu xanh",
+            "desc": "Đậu xanh mịn, nấu nhừ, vị thanh mát.",
+            "price": 20,
+            "image": optimize_pexels("https://images.pexels.com/photos/36211530/pexels-photo-36211530.jpeg"),
+        },
+        {
+            "id": "che-khuc-bach",
+            "name": "Chè khúc bạch",
+            "desc": "Khúc bạch dai dai, mịn màng.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/33212602/pexels-photo-33212602.jpeg"),
+        },
+        {
+            "id": "che-thai",
+            "name": "Chè Thái",
+            "desc": "Sầu riêng béo ngậy, thơm nồng.",
+            "price": 28,
+            "image": optimize_pexels("https://images.pexels.com/photos/6063321/pexels-photo-6063321.jpeg"),
+        },
+        {
+            "id": "che-trai-cay",
+            "name": "Chè trái cây",
+            "desc": "Đủ các loại trái cây tươi ngon.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/1242512/pexels-photo-1242512.jpeg"),
+        },
     ]
 
     return render_template("che.html", user=user, show_nav=True, products=products, hot_products=hot_products)
+
 
 @app.route("/fried")
 def fried():
@@ -194,24 +355,116 @@ def fried():
         flash("Vui lòng đăng nhập để xem trang đồ chiên.", "error")
         return redirect(url_for("login"))
 
+    def optimize_pexels(url, width=600):
+        url = url.strip()
+        if "images.pexels.com" in url:
+            if "?" in url:
+                return url
+            return f"{url}?auto=compress&cs=tinysrgb&w={width}"
+        return url
+
     products = [
-        {"id": "khoai-tay-chien", "name": "Khoai tây chiên", "desc": "Giòn rụm, tẩm gia vị vàng ruộm.", "price": 25, "image": ""},
-        {"id": "ga-ran", "name": "Gà rán", "desc": "Gà mềm ngọt, vỏ giòn tan.", "price": 30, "image": ""},
-        {"id": "ca-vien-chien", "name": "Cá viên chiên", "desc": "Cá tươi, dai ngon.", "price": 20, "image": ""},
-        {"id": "xuc-xich-chien", "name": "Xúc xích chiên", "desc": "Xúc xích giòn ngoài, mềm trong.", "price": 15, "image": ""},
-        {"id": "phomai-que", "name": "Phô mai que", "desc": "Phô mai kéo sợi, giòn vàng.", "price": 20, "image": ""},
-        {"id": "muc-chien-xu", "name": "Mực chiên xù", "desc": "Mực tươi, giòn rụm.", "price": 35, "image": ""},
-        {"id": "tom-chien", "name": "Tôm chiên", "desc": "Tôm to, giòn thơm.", "price": 35, "image": ""},
-        {"id": "bach-tuoc-chien", "name": "Bạch tuộc chiên", "desc": "Bạch tuộc dai giòn.", "price": 40, "image": ""},
-        {"id": "thanh-cua-chien", "name": "Thanh cua chiên", "desc": "Thanh cua ngọt thịt.", "price": 25, "image": ""},
+        {
+            "id": "khoai-tay-chien",
+            "name": "Khoai tây chiên",
+            "desc": "Giòn rụm, tẩm gia vị vàng ruộm.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/29150162/pexels-photo-29150162.jpeg"),
+        },
+        {
+            "id": "ga-ran",
+            "name": "Gà rán",
+            "desc": "Gà mềm ngọt, vỏ giòn tan.",
+            "price": 30,
+            "image": optimize_pexels("https://images.pexels.com/photos/33101857/pexels-photo-33101857.jpeg"),
+        },
+        {
+            "id": "ca-vien-chien",
+            "name": "Cá viên chiên",
+            "desc": "Cá tươi, dai ngon.",
+            "price": 20,
+            "image": optimize_pexels("https://images.pexels.com/photos/33297058/pexels-photo-33297058.jpeg"),
+        },
+        {
+            "id": "xuc-xich-chien",
+            "name": "Xúc xích chiên",
+            "desc": "Xúc xích giòn ngoài, mềm trong.",
+            "price": 15,
+            "image": optimize_pexels("https://images.pexels.com/photos/32228060/pexels-photo-32228060.jpeg"),
+        },
+        {
+            "id": "phomai-que",
+            "name": "Phô mai que",
+            "desc": "Phô mai kéo sợi, giòn vàng.",
+            "price": 20,
+            "image": optimize_pexels("https://images.pexels.com/photos/17121733/pexels-photo-17121733.jpeg"),
+        },
+        {
+            "id": "muc-chien-xu",
+            "name": "Mực chiên xù",
+            "desc": "Mực tươi, giòn rụm.",
+            "price": 35,
+            "image": optimize_pexels("https://images.pexels.com/photos/15801007/pexels-photo-15801007.jpeg"),
+        },
+        {
+            "id": "tom-chien",
+            "name": "Tôm chiên",
+            "desc": "Tôm to, giòn thơm.",
+            "price": 35,
+            "image": optimize_pexels("https://images.pexels.com/photos/3622477/pexels-photo-3622477.jpeg"),
+        },
+        {
+            "id": "bach-tuoc-chien",
+            "name": "Bạch tuộc chiên",
+            "desc": "Bạch tuộc dai giòn.",
+            "price": 40,
+            "image": optimize_pexels("https://images.pexels.com/photos/8352801/pexels-photo-8352801.jpeg"),
+        },
+        {
+            "id": "thanh-cua-chien",
+            "name": "Thanh cua chiên",
+            "desc": "Thanh cua ngọt thịt.",
+            "price": 25,
+            "image": optimize_pexels("https://images.pexels.com/photos/35017889/pexels-photo-35017889.jpeg"),
+        },
     ]
 
     hot_combos = [
-        {"id": "combo-1", "name": "Combo 1", "desc": "Khoai tây + Cá viên + Xúc xích", "price": 55, "image": ""},
-        {"id": "combo-2", "name": "Combo 2", "desc": "Gà rán + Khoai tây + Nước ngọt", "price": 65, "image": ""},
-        {"id": "combo-3", "name": "Combo 3 - Full", "desc": "Mix tất cả đồ chiên", "price": 89, "image": ""},
-        {"id": "combo-tra-sua-che", "name": "Combo Trà Sữa + Chè", "desc": "Trà sữa trân châu + Chè đậu xanh", "price": 45, "image": ""},
-        {"id": "combo-full-house", "name": "Combo Full House", "desc": "Trà sữa + Chè + Đồ chiên", "price": 99, "image": ""},
+        {
+            "id": "combo-1",
+            "name": "Combo 1",
+            "desc": "Khoai tây + Cá viên + Xúc xích",
+            "price": 55,
+            "image": optimize_pexels("https://images.pexels.com/photos/25390054/pexels-photo-25390054.jpeg"),
+        },
+        {
+            "id": "combo-2",
+            "name": "Combo 2",
+            "desc": "Gà rán + Khoai tây + Nước ngọt",
+            "price": 65,
+            "image": optimize_pexels("https://images.pexels.com/photos/12362924/pexels-photo-12362924.jpeg"),
+        },
+        {
+            "id": "combo-3",
+            "name": "Combo 3 - Full",
+            "desc": "Mix tất cả đồ chiên",
+            "price": 89,
+            "image": optimize_pexels("https://images.pexels.com/photos/29905245/pexels-photo-29905245.jpeg"),
+        },
+        {
+            "id": "combo-tra-sua-che",
+            "name": "Combo Trà Sữa + Chè",
+            "desc": "Trà sữa trân châu + Chè đậu xanh",
+            "price": 45,
+            "image": optimize_pexels("https://images.pexels.com/photos/35727299/pexels-photo-35727299.jpeg"),
+        },
+        {
+            "id": "combo-full-house",
+            "name": "Combo Full House",
+            "desc": "Trà sữa + Chè + Đồ chiên",
+            "price": 99,
+            "image": optimize_pexels("https://images.pexels.com/photos/35727301/pexels-photo-35727301.jpeg"),
+        },
     ]
 
     return render_template("fried.html", user=user, show_nav=True, products=products, hot_combos=hot_combos)
@@ -265,32 +518,64 @@ def profile():
 def add_review():
     user = get_current_user()
     if not user:
-        flash("Vui lòng đăng nhập để đánh giá.", "error")
-        return redirect(url_for("login"))
+        return jsonify({"message": "Vui lòng đăng nhập để đánh giá."}), 401
 
-    product = request.form.get("product", "").strip()
-    rating = request.form.get("rating", "").strip()
-    comment = request.form.get("comment", "").strip()
+    try:
+        data = request.get_json()
 
-    if not product or not rating:
-        flash("Vui lòng chọn sản phẩm và đánh giá.", "error")
-        return redirect(url_for("profile"))
+        if not data:
+            return jsonify({"message": "Không nhận được dữ liệu."}), 400
 
-    from datetime import datetime
-    new_review = {
-        "id": int(datetime.now().timestamp()),
-        "product": product,
-        "rating": int(rating),
-        "comment": comment,
-        "date": datetime.now().strftime("%Y-%m-%d")
-    }
+        product = data.get("product", "").strip()
+        name = data.get("name", "").strip()
+        email = data.get("email", "").strip()
+        rating = str(data.get("rating", "")).strip()
+        comment = data.get("comment", "").strip()
 
-    reviews = session.get("reviews", [])
-    reviews.insert(0, new_review)
-    session["reviews"] = reviews
+        if not product or not rating or not name or not email:
+            return jsonify({"message": "Vui lòng nhập đầy đủ thông tin."}), 400
 
-    flash("Đánh giá của bạn đã được gửi!", "success")
-    return redirect(url_for("profile"))
+        new_review = {
+            "id": int(datetime.now().timestamp()),
+            "product": product,
+            "name": name,
+            "email": email,
+            "rating": int(rating),
+            "comment": comment,
+            "date": datetime.now().strftime("%Y-%m-%d")
+        }
+
+        reviews = session.get("reviews", [])
+        reviews.insert(0, new_review)
+        session["reviews"] = reviews
+
+        # Gửi email cảm ơn
+        msg = Message(
+            subject="Cảm ơn bạn đã gửi đánh giá",
+            recipients=[email]
+        )
+
+        msg.body = f"""
+Xin chào {name},
+
+Cảm ơn ní đã gửi đánh giá cho sản phẩm: {product}.
+
+Chúng tôi đã ghi nhận phản hồi của bạn:
+- Số sao: {rating}
+- Nội dung: {comment}
+
+Phản hồi của fen rất quan trọng và tôi cải thiện dịch vụ tốt hơn.
+
+Trân trọng,
+Duy Khánh
+"""
+        mail.send(msg)
+
+        return jsonify({"message": "Gửi đánh giá và email cảm ơn thành công!"}), 200
+
+    except Exception as e:
+        print("Lỗi add_review:", e)
+        return jsonify({"message": f"Có lỗi xảy ra: {str(e)}"}), 500
 
 @app.route("/logout")
 def logout():
