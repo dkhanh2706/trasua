@@ -1,0 +1,141 @@
+{% extends "base.html" %} {% block content %}
+<div class="home-page">
+  <section class="hero-section">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge-pill">✨ 100% Natural Ingredients</div>
+      <h1 class="hero-title">
+        <span class="title-line">Đậm đà</span>
+        <span class="title-highlight">Mỗi Ngụm</span>
+      </h1>
+      <p class="hero-desc">
+        Trải nghiệm hương vị trà sữa thượng hạng với topping tươi ngon nhất. 
+        Phong cách mới, gu thẩm mỹ mới - chỉ có tại DKhanh.
+      </p>
+      <div class="hero-cta">
+        <a href="{{ url_for('milk_tea') }}" class="btn-main">
+          <span class="btn-icon">🧋</span>
+          <span>Đặt ngay</span>
+        </a>
+        <a href="{{ url_for('che') }}" class="btn-outline">
+          <span class="btn-icon">📋</span>
+          <span>Xem thực đơn</span>
+        </a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="cup-showcase">
+        <div class="floating-items">
+          <span class="float-item f1">🍵</span>
+          <span class="float-item f2">🫐</span>
+          <span class="float-item f3">🍪</span>
+        </div>
+        <div class="main-cup">🧋</div>
+        <div class="cup-glow"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories-section">
+    <div class="section-header-center">
+      <span class="section-tag">Our Menu</span>
+      <h2>Khám phá thực đơn</h2>
+    </div>
+    <div class="category-grid">
+      <a href="{{ url_for('milk_tea') }}" class="category-card">
+        <div class="cat-bg cat-milktea"></div>
+        <div class="cat-content">
+          <span class="cat-emoji">🧋</span>
+          <h3>Trà Sữa</h3>
+          <p>Trà sữa trân châu, matcha, kem cheese...</p>
+          <span class="cat-link">Xem ngay →</span>
+        </div>
+      </a>
+      <a href="{{ url_for('che') }}" class="category-card">
+        <div class="cat-bg cat-che"></div>
+        <div class="cat-content">
+          <span class="cat-emoji">🍮</span>
+          <h3>Chè</h3>
+          <p>Chè bưởi, chè đậu, chè thái...</p>
+          <span class="cat-link">Xem ngay →</span>
+        </div>
+      </a>
+      <a href="{{ url_for('fried') }}" class="category-card">
+        <div class="cat-bg cat-fried"></div>
+        <div class="cat-content">
+          <span class="cat-emoji">🍗</span>
+          <h3>Đồ Chiên</h3>
+          <p>Khoai tây, gà, nem chua rán...</p>
+          <span class="cat-link">Xem ngay →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="highlights-section">
+    <div class="highlight-grid">
+      <div class="highlight-item">
+        <div class="highlight-icon">🌿</div>
+        <div class="highlight-text">
+          <h4>Nguyên liệu tươi</h4>
+          <p>100% trà natural, sữa tươi</p>
+        </div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-icon">👨‍🍳</div>
+        <div class="highlight-text">
+          <h4>Pha chế đẳng cấp</h4>
+          <p>Barista kinh nghiệm</p>
+        </div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-icon">⚡</div>
+        <div class="highlight-text">
+          <h4>Giao nhanh 30p</h4>
+          <p>Giữ độ lạnh hoàn hảo</p>
+        </div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-icon">🎁</div>
+        <div class="highlight-text">
+          <h4>Ưu đãi hội viên</h4>
+          <p>Giảm 20% mỗi đơn</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bestseller-section">
+    <div class="section-header-center">
+      <span class="section-tag">🔥 Hot This Week</span>
+      <h2>Món được yêu thích</h2>
+    </div>
+    <div class="bestseller-grid">
+      <div class="bestseller-card">
+        <div class="best-badge">#1</div>
+        <div class="best-emoji">🧋</div>
+        <h4>Trà Sữa Trân Châu Đường Đen</h4>
+        <div class="best-price">25.000₫</div>
+      </div>
+      <div class="bestseller-card">
+        <div class="best-badge">#2</div>
+        <div class="best-emoji">🍵</div>
+        <h4>Matcha Latte Kem Cheese</h4>
+        <div class="best-price">35.000₫</div>
+      </div>
+      <div class="bestseller-card">
+        <div class="best-badge">#3</div>
+        <div class="best-emoji">🥤</div>
+        <h4>Caramel Milk Tea</h4>
+        <div class="best-price">30.000₫</div>
+      </div>
+      <div class="bestseller-card">
+        <div class="best-badge">#4</div>
+        <div class="best-emoji">🍓</div>
+        <h4>Strawberry Cheese Tea</h4>
+        <div class="best-price">32.000₫</div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

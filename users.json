@@ -1,0 +1,8 @@
+{
+  "abc@gmail.com": {
+    "name": "abc",
+    "email": "abc@gmail.com",
+    "password": "kkkkkkkk",
+    "is_admin": false
+  }
+}

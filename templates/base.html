@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DKhanh Tea House</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      {% if show_nav|default(true) %}
+      <header class="site-header">
+        <a href="{{ url_for('home') }}" class="nav-brand">
+          <div class="nav-brand-icon">🧋</div>
+          <span class="nav-brand-text">DKhanh</span>
+        </a>
+
+        <nav>
+          <ul class="main-nav">
+            <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}nav-active{% endif %}">Trang chủ</a></li>
+            <li><a href="{{ url_for('milk_tea') }}" class="{% if request.endpoint == 'milk_tea' %}nav-active{% endif %}">Trà sữa</a></li>
+            <li><a href="{{ url_for('che') }}" class="{% if request.endpoint == 'che' %}nav-active{% endif %}">Chè</a></li>
+            <li><a href="{{ url_for('fried') }}" class="{% if request.endpoint == 'fried' %}nav-active{% endif %}">Đồ chiên</a></li>
+            <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}nav-active{% endif %}">Hồ sơ</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav-actions">
+          {% if user %}
+          <a href="{{ url_for('profile') }}" class="nav-user">
+            <span>👤</span>
+            <span>{{ user.name }}</span>
+          </a>
+          <a href="{{ url_for('logout') }}" class="nav-logout">Đăng xuất</a>
+          {% else %}
+          <a href="{{ url_for('login') }}" class="nav-user">Đăng nhập</a>
+          {% endif %}
+        </div>
+      </header>
+      {% endif %}
+
+      <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+        <div class="flash-list">
+          {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+  </body>
+</html>

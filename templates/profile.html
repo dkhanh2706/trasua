@@ -1,0 +1,173 @@
+{% extends "base.html" %} {% block content %}
+<div class="profile-page">
+  <h1>Hồ sơ của tôi</h1>
+
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="profile-avatar-wrapper">
+        {% if user.avatar %}
+        <img src="{{ user.avatar }}" alt="Avatar" class="profile-avatar" />
+        {% else %}
+        <div class="profile-avatar-placeholder">👤</div>
+        {% endif %}
+        <label for="avatar-upload" class="avatar-edit-btn">📷</label>
+      </div>
+
+      <div class="profile-info">
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        <span class="role-badge">
+          {% if user.is_admin %}Admin{% else %}Khách hàng{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="profile-form">
+      <div class="form-group">
+        <label for="name">Tên của bạn</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ user.name }}"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="avatar-upload">Đổi ảnh đại diện</label>
+        <input
+          type="file"
+          id="avatar-upload"
+          name="avatar"
+          accept="image/*"
+          class="file-input"
+        />
+        <p class="form-hint">Chọn ảnh PNG, JPG hoặc GIF</p>
+      </div>
+
+      <div class="form-group">
+        <label for="new_password">Mật khẩu mới (để trống nếu không đổi)</label>
+        <input
+          type="password"
+          id="new_password"
+          name="new_password"
+          placeholder="Nhập mật khẩu mới"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Xác nhận mật khẩu</label>
+        <input
+          type="password"
+          id="confirm_password"
+          name="confirm_password"
+          placeholder="Nhập lại mật khẩu mới"
+        />
+      </div>
+
+      <button type="submit" class="btn-save">Lưu thay đổi</button>
+    </form>
+  </div>
+
+  <div class="reviews-section">
+    <h2>Đánh giá của tôi</h2>
+
+    <form
+      method="POST"
+      action="{{ url_for('add_review') }}"
+      class="review-form"
+      id="reviewForm"
+    >
+      <div class="form-group">
+        <label for="product">Sản phẩm</label>
+        <select id="product" name="product" required>
+          <option value="">-- Chọn sản phẩm --</option>
+          <option value="Trà sữa trân châu đen">Trà sữa trân châu đen</option>
+          <option value="Trà sữa trân châu trắng">
+            Trà sữa trân châu trắng
+          </option>
+          <option value="Trà sữa thái xanh">Trà sữa thái xanh</option>
+          <option value="Trà sữa kem cheese">Trà sữa kem cheese</option>
+          <option value="Trà đào kem cheese">Trà đào kem cheese</option>
+          <option value="Trà ô long kem cheese">Trà ô long kem cheese</option>
+          <option value="Trà sữa matcha">Trà sữa matcha</option>
+          <option value="Trà sữa socola">Trà sữa socola</option>
+          <option value="Trà sữa khoai môn">Trà sữa khoai môn</option>
+          <option value="Chè đậu xanh">Chè đậu xanh</option>
+          <option value="Chè đậu đen">Chè đậu đen</option>
+          <option value="Chè đậu đỏ">Chè đậu đỏ</option>
+          <option value="Chè bắp">Chè bắp</option>
+          <option value="Chè khúc bạch">Chè khúc bạch</option>
+          <option value="Chè Thái">Chè Thái</option>
+          <option value="Chè trái cây">Chè trái cây</option>
+          <option value="Chè nha đam">Chè nha đam</option>
+          <option value="Chè bơ">Chè bơ</option>
+          <option value="Khoai tây chiên">Khoai tây chiên</option>
+          <option value="Gà rán">Gà rán</option>
+          <option value="Cá viên chiên">Cá viên chiên</option>
+          <option value="Xúc xích chiên">Xúc xích chiên</option>
+          <option value="Phô mai que">Phô mai que</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="review_name">Tên của bạn</label>
+        <input
+          type="text"
+          id="review_name"
+          name="review_name"
+          placeholder="Nhập tên của bạn"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="review_email">Email của bạn</label>
+        <input
+          type="email"
+          id="review_email"
+          name="review_email"
+          placeholder="Nhập email để nhận thư cảm ơn"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Đánh giá</label>
+        <div class="star-rating">
+          <input type="radio" id="star5" name="rating" value="5" required />
+          <label for="star5" title="5 sao">&#9733;</label>
+
+          <input type="radio" id="star4" name="rating" value="4" />
+          <label for="star4" title="4 sao">&#9733;</label>
+
+          <input type="radio" id="star3" name="rating" value="3" />
+          <label for="star3" title="3 sao">&#9733;</label>
+
+          <input type="radio" id="star2" name="rating" value="2" />
+          <label for="star2" title="2 sao">&#9733;</label>
+
+          <input type="radio" id="star1" name="rating" value="1" />
+          <label for="star1" title="1 sao">&#9733;</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Nhận xét của bạn</label>
+        <textarea
+          id="comment"
+          name="comment"
+          rows="3"
+          placeholder="Chia sẻ cảm nhận của bạn..."
+          required
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn-save">Gửi đánh giá</button>
+    </form>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,255 @@
+{% extends "base.html" %} {% block content %}
+<div class="page-section">
+  <h1>Đồ chiên</h1>
+  <p class="section-lead">
+    Đồ chiên giòn rụm, phục vụ nhanh, ăn kèm sốt đậm vị.
+  </p>
+
+  <!-- Combo Hot -->
+  <div class="hot-month-section">
+    <h2 class="section-title">
+      <span class="hot-icon">🔥</span> Combo Hot của Tháng
+    </h2>
+    <div class="hot-grid">
+      {% for combo in hot_combos %}
+      <div
+        class="product-card hot-card"
+        data-id="{{ combo.id }}"
+        data-name="{{ combo.name }}"
+        data-price="{{ combo.price }}"
+        data-base-price="{{ combo.price }}"
+      >
+        <div class="hot-badge">Hot</div>
+        {% if combo.image %}
+        <img
+          class="product-image"
+          src="{{ combo.image }}"
+          alt="{{ combo.name }}"
+        />
+        {% else %}
+        <div class="product-placeholder">🍟</div>
+        {% endif %}
+        <h3>{{ combo.name }}</h3>
+        <p class="product-desc">{{ combo.desc }}</p>
+        <div class="product-price">{{ combo.price }}k</div>
+        <button class="btn-select" onclick="openModal('{{ combo.id }}')">
+          Chọn
+        </button>
+      </div>
+      {% endfor %} {% for combo in hot_combos %}
+      <div
+        class="product-card hot-card"
+        data-id="{{ combo.id }}-dup"
+        data-name="{{ combo.name }}"
+        data-price="{{ combo.price }}"
+        data-base-price="{{ combo.price }}"
+      >
+        <div class="hot-badge">Hot</div>
+        {% if combo.image %}
+        <img
+          class="product-image"
+          src="{{ combo.image }}"
+          alt="{{ combo.name }}"
+        />
+        {% else %}
+        <div class="product-placeholder">🍟</div>
+        {% endif %}
+        <h3>{{ combo.name }}</h3>
+        <p class="product-desc">{{ combo.desc }}</p>
+        <div class="product-price">{{ combo.price }}k</div>
+        <button class="btn-select" onclick="openModal('{{ combo.id }}')">
+          Chọn
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <h2 class="section-title">Tất cả đồ chiên</h2>
+  <div class="product-grid">
+    {% for product in products %}
+    <div
+      class="product-card"
+      data-id="{{ product.id }}"
+      data-name="{{ product.name }}"
+      data-price="{{ product.price }}"
+      data-base-price="{{ product.price }}"
+    >
+      {% if product.image %}
+      <img
+        class="product-image"
+        src="{{ product.image }}"
+        alt="{{ product.name }}"
+      />
+      {% else %}
+      <div class="product-placeholder">🍟</div>
+      {% endif %}
+      <h3>{{ product.name }}</h3>
+      <p class="product-desc">{{ product.desc }}</p>
+      <div class="product-price">{{ product.price }}k</div>
+      <button class="btn-select" onclick="openModal('{{ product.id }}')">
+        Chọn
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="modal-overlay" id="orderModal" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h2 id="modalProductName">Khoai tây chiên</h2>
+    <p class="modal-base-price">Gía: <span id="modalBasePrice">25</span>k</p>
+
+    <div class="option-group">
+      <label class="option-label">Số lượng</label>
+      <div class="quantity-selector">
+        <button class="qty-btn" onclick="changeQty(-1)">-</button>
+        <span class="qty-value" id="qtyValue">1</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <label class="option-label">Size</label>
+      <div class="size-options">
+        <label class="size-option">
+          <input type="radio" name="size" value="S" data-price="0" checked />
+          <span class="size-btn">S</span>
+        </label>
+        <label class="size-option">
+          <input type="radio" name="size" value="M" data-price="5" />
+          <span class="size-btn">M (+5k)</span>
+        </label>
+        <label class="size-option">
+          <input type="radio" name="size" value="L" data-price="10" />
+          <span class="size-btn">L (+10k)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <label class="option-label">Sốt</label>
+      <div class="sauce-options">
+        <label class="sauce-option">
+          <input type="checkbox" name="sauce" value="tuong-ot" data-price="0" />
+          <span class="sauce-btn">Tương ớt</span>
+        </label>
+        <label class="sauce-option">
+          <input type="checkbox" name="sauce" value="mayo" data-price="0" />
+          <span class="sauce-btn">Mayo</span>
+        </label>
+        <label class="sauce-option">
+          <input type="checkbox" name="sauce" value="phomai" data-price="5" />
+          <span class="sauce-btn">Phô mai (+5k)</span>
+        </label>
+        <label class="sauce-option">
+          <input type="checkbox" name="sauce" value="bbq" data-price="5" />
+          <span class="sauce-btn">BBQ (+5k)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <label class="option-label">Đá: <span id="iceValue">100</span>%</label>
+      <input
+        type="range"
+        id="iceSlider"
+        min="0"
+        max="100"
+        value="100"
+        oninput="updateIce(this.value)"
+      />
+    </div>
+
+    <div class="option-group">
+      <label class="option-label"
+        >Đường: <span id="sugarValue">100</span>%</label
+      >
+      <input
+        type="range"
+        id="sugarSlider"
+        min="0"
+        max="100"
+        value="100"
+        oninput="updateSugar(this.value)"
+      />
+    </div>
+
+    <div class="total-section">
+      <div class="total-label">Tổng tiền:</div>
+      <div class="total-price"><span id="totalPrice">25</span>k</div>
+    </div>
+
+    <button class="btn-add-cart" onclick="addToCart()">Thêm vào giỏ</button>
+  </div>
+</div>
+
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Giỏ hàng</h3>
+    <button class="cart-close" onclick="toggleCart()">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <p class="cart-empty">Chưa có sản phẩm nào</p>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Tổng:</span>
+      <span id="cartTotal">0k</span>
+    </div>
+    <button class="btn-checkout">Thanh toán</button>
+  </div>
+</div>
+
+<button class="cart-toggle" onclick="toggleCart()">
+  <span class="cart-icon">🛒</span>
+  <span class="cart-count" id="cartCount">0</span>
+</button>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-section">
+      <h3>Liên hệ</h3>
+      <div class="contact-item">
+        <span class="contact-icon">📍</span>
+        <span>123 Đường Nguyễn Trãi, Quận 1, TP.HCM</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">📞</span>
+        <span>1900 1234</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">✉️</span>
+        <span>contact@dkhanhtea.com</span>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">🕒</span>
+        <span>Giờ mở cửa: 7:00 - 22:00</span>
+      </div>
+    </div>
+    <div class="footer-section">
+      <h3>Liên kết nhanh</h3>
+      <ul class="footer-links">
+        <li><a href="{{ url_for('home') }}">🏠 Trang chủ</a></li>
+        <li><a href="{{ url_for('milk_tea') }}">🧋 Trà sữa</a></li>
+        <li><a href="{{ url_for('che') }}">🍵 Chè</a></li>
+        <li><a href="{{ url_for('fried') }}">🍟 Đồ chiên</a></li>
+        <li><a href="{{ url_for('profile') }}">👤 Hồ sơ</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h3>Theo dõi</h3>
+      <div class="social-links">
+        <a href="#" class="social-link">📘 Facebook</a>
+        <a href="#" class="social-link">📸 Instagram</a>
+        <a href="#" class="social-link">🐦 Twitter</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2024 DKhanh Tea House. All rights reserved.</p>
+  </div>
+</footer>
+{% endblock %}
