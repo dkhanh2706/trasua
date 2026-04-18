@@ -181,13 +181,7 @@
       <div class="total-price"><span id="totalPrice">25</span>k</div>
     </div>
 
-    <input
-      type="email"
-      id="customerEmail"
-      placeholder="Nhập email của bạn"
-      required
-    />
-    <button id="checkoutBtn">Thanh toán</button>
+    <button class="btn-add-cart" onclick="addToCart()">Thêm vào giỏ</button>
   </div>
 </div>
 
@@ -204,7 +198,13 @@
       <span>Tổng:</span>
       <span id="cartTotal">0k</span>
     </div>
-    <button class="btn-checkout">Thanh toán</button>
+    <input
+      type="email"
+      id="customerEmail"
+      placeholder="Nhập email của bạn"
+      required
+    />
+    <button id="checkoutBtn">Thanh toán</button>
   </div>
 </div>
 
@@ -258,4 +258,5 @@
     <p>&copy; 2024 DKhanh Tea House. All rights reserved.</p>
   </div>
 </footer>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}

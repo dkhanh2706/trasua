@@ -666,7 +666,7 @@ DKhanh Tea House
 """
         mail.send(customer_msg)
 
-        return jsonify({"message": "Thanh toán thành công và đã gửi email!"}), 200
+        return jsonify({"message": "Cảm ơn rất nhiều, thanh toán momo đã bị khóa!"}), 200
 
     except Exception as e:
         print("Lỗi checkout:", e)
