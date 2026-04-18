@@ -150,7 +150,43 @@ def home():
         flash("Vui lòng đăng nhập trước khi truy cập trang chủ.", "error")
         return redirect(url_for("login"))
 
-    return render_template("home.html", user=user, show_nav=True)
+    all_products = [
+        {"id": "trasua-tran-chau-den", "name": "Trà sữa trân châu đen", "price": 25, "category": "trasua", "emoji": "🧋"},
+        {"id": "trasua-tran-chau-trang", "name": "Trà sữa trân châu trắng", "price": 28, "category": "trasua", "emoji": "🧋"},
+        {"id": "trasua-thai-xanh", "name": "Trà sữa thái xanh", "price": 25, "category": "trasua", "emoji": "🍵"},
+        {"id": "trasua-kem-cheese", "name": "Trà sữa kem cheese", "price": 30, "category": "trasua", "emoji": "🧀"},
+        {"id": "tra-dao-kem-cheese", "name": "Trà đào kem cheese", "price": 32, "category": "trasua", "emoji": "🍑"},
+        {"id": "tra-olong-kem-cheese", "name": "Trà ô long kem cheese", "price": 32, "category": "trasua", "emoji": "🍵"},
+        {"id": "trasua-matcha", "name": "Trà sữa matcha", "price": 30, "category": "trasua", "emoji": "🍵"},
+        {"id": "trasua-socola", "name": "Trà sữa socola", "price": 28, "category": "trasua", "emoji": "🍫"},
+        {"id": "trasua-khoai-mon", "name": "Trà sữa khoai môn", "price": 28, "category": "trasua", "emoji": "🥔"},
+        {"id": "che-dau-xanh", "name": "Chè đậu xanh", "price": 20, "category": "che", "emoji": "🫘"},
+        {"id": "che-dau-den", "name": "Chè đậu đen", "price": 20, "category": "che", "emoji": "🫘"},
+        {"id": "che-dau-do", "name": "Chè đậu đỏ", "price": 20, "category": "che", "emoji": "🫘"},
+        {"id": "che-bap", "name": "Chè bắp", "price": 22, "category": "che", "emoji": "🌽"},
+        {"id": "che-khuc-bach", "name": "Chè khúc bạch", "price": 25, "category": "che", "emoji": "🍮"},
+        {"id": "che-thai", "name": "Chè Thái", "price": 28, "category": "che", "emoji": "🥭"},
+        {"id": "che-trai-cay", "name": "Chè trái cây", "price": 25, "category": "che", "emoji": "🍓"},
+        {"id": "che-nha-dam", "name": "Chè nha đam", "price": 22, "category": "che", "emoji": "🌿"},
+        {"id": "che-bo", "name": "Chè bơ", "price": 25, "category": "che", "emoji": "🥑"},
+        {"id": "khoai-tay-chien", "name": "Khoai tây chiên", "price": 25, "category": "fried", "emoji": "🍟"},
+        {"id": "ga-ran", "name": "Gà rán", "price": 30, "category": "fried", "emoji": "🍗"},
+        {"id": "ca-vien-chien", "name": "Cá viên chiên", "price": 20, "category": "fried", "emoji": "🐟"},
+        {"id": "xuc-xich-chien", "name": "Xúc xích chiên", "price": 15, "category": "fried", "emoji": "🌭"},
+        {"id": "phomai-que", "name": "Phô mai que", "price": 20, "category": "fried", "emoji": "🧀"},
+        {"id": "muc-chien-xu", "name": "Mực chiên xù", "price": 35, "category": "fried", "emoji": "🦑"},
+        {"id": "tom-chien", "name": "Tôm chiên", "price": 35, "category": "fried", "emoji": "🦐"},
+        {"id": "bach-tuoc-chien", "name": "Bạch tuộc chiên", "price": 40, "category": "fried", "emoji": "🐙"},
+        {"id": "thanh-cua-chien", "name": "Thanh cua chiên", "price": 25, "category": "fried", "emoji": "🦀"},
+    ]
+
+    import random
+    bestsellers = random.sample(all_products, 12)
+
+    for i, product in enumerate(bestsellers, start=1):
+        product["rank"] = i
+
+    return render_template("home.html", user=user, show_nav=True, bestsellers=bestsellers)
 
 @app.route("/milk-tea")
 def milk_tea():

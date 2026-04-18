@@ -218,3 +218,102 @@ function removeFromCart(itemId) {
 function toggleCart() {
   document.getElementById("cartSidebar").classList.toggle("active");
 }
+
+// 3D Carousel Sphere Effect
+document.addEventListener("DOMContentLoaded", function () {
+  const container = document.querySelector(".carousel-container");
+  const track = document.getElementById("bestsellerCarousel");
+  if (!container || !track) return;
+
+  const cards = Array.from(track.children);
+  const totalCards = cards.length;
+  if (totalCards === 0) return;
+
+  const radius = 260;
+  const autoRotate = true;
+  let autoRotateTimer;
+  let isDragging = false;
+  let currentAngle = 0;
+  let velocity = 0;
+  let lastX = 0;
+
+  function positionCards() {
+    const angleStep = (2 * Math.PI) / totalCards;
+    cards.forEach((card, index) => {
+      const angle = currentAngle + index * angleStep;
+      const x = Math.sin(angle) * radius;
+      const z = Math.cos(angle) * radius - radius;
+      const y = Math.sin(angle * 2) * 25;
+
+      card.style.transform = `translate(${x}px, ${y}px) translateZ(${z}px)`;
+      card.style.opacity = (z + radius * 1.5) / (radius * 2);
+      card.style.zIndex = Math.floor(z + radius);
+    });
+  }
+
+  function animate() {
+    currentAngle += velocity;
+    positionCards();
+    requestAnimationFrame(animate);
+  }
+
+  function startAutoRotate() {
+    if (autoRotate) {
+      velocity = 0.004;
+    }
+  }
+
+  function stopAutoRotate() {
+    velocity = 0;
+  }
+
+  container.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    lastX = e.clientX;
+    stopAutoRotate();
+    clearTimeout(autoRotateTimer);
+    container.style.cursor = "grabbing";
+    e.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - lastX;
+    velocity = deltaX * 0.0005;
+    currentAngle += deltaX * 0.003;
+    lastX = e.clientX;
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (isDragging) {
+      isDragging = false;
+      container.style.cursor = "grab";
+      autoRotateTimer = setTimeout(startAutoRotate, 2000);
+    }
+  });
+
+  container.addEventListener("touchstart", (e) => {
+    isDragging = true;
+    lastX = e.touches[0].clientX;
+    stopAutoRotate();
+    clearTimeout(autoRotateTimer);
+  }, { passive: true });
+
+  container.addEventListener("touchmove", (e) => {
+    if (!isDragging) return;
+    const touchX = e.touches[0].clientX;
+    const deltaX = touchX - lastX;
+    velocity = deltaX * 0.0005;
+    currentAngle += deltaX * 0.003;
+    lastX = touchX;
+  }, { passive: true });
+
+  container.addEventListener("touchend", () => {
+    isDragging = false;
+    autoRotateTimer = setTimeout(startAutoRotate, 2000);
+  });
+
+  positionCards();
+  animate();
+  autoRotateTimer = setTimeout(startAutoRotate, 1500);
+});
