@@ -577,6 +577,100 @@ Duy Khánh
         print("Lỗi add_review:", e)
         return jsonify({"message": f"Có lỗi xảy ra: {str(e)}"}), 500
 
+@app.route("/checkout", methods=["POST"])
+def checkout():
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Vui lòng đăng nhập để thanh toán."}), 401
+
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"error": "Không nhận được dữ liệu đơn hàng."}), 400
+
+        customer_email = data.get("customer_email", "").strip()
+        items = data.get("items", [])
+        total = data.get("total", 0)
+
+        if not customer_email:
+            return jsonify({"error": "Vui lòng nhập email."}), 400
+
+        if not items:
+            return jsonify({"error": "Giỏ hàng trống."}), 400
+
+        order_lines = []
+        for idx, item in enumerate(items, start=1):
+            name = item.get("name", "Không rõ")
+            size = item.get("size", "")
+            ice = item.get("ice", "")
+            sugar = item.get("sugar", "")
+            toppings = item.get("toppings", [])
+            sauces = item.get("sauces", [])
+            qty = item.get("qty", 1)
+            price = item.get("price", 0)
+
+            toppings_text = ", ".join(toppings) if toppings else "Không"
+            sauces_text = ", ".join(sauces) if sauces else "Không"
+
+            order_lines.append(
+                f"""{idx}. {name}
+- Size: {size}
+- Đá: {ice}
+- Đường: {sugar}
+- Topping: {toppings_text}
+- Sốt: {sauces_text}
+- Số lượng: {qty}
+- Giá: {price}k"""
+            )
+
+        order_detail = "\n\n".join(order_lines)
+
+        # Mail gửi cho admin / chủ shop
+        admin_msg = Message(
+            subject="Đơn hàng mới từ website",
+            recipients=[app.config["MAIL_USERNAME"]]
+        )
+        admin_msg.body = f"""
+Có đơn hàng mới từ website.
+
+Khách hàng: {user.get('name', 'Không rõ')}
+Email khách nhập: {customer_email}
+
+Chi tiết đơn hàng:
+{order_detail}
+
+Tổng tiền: {total}k
+"""
+        mail.send(admin_msg)
+
+        # Mail xác nhận gửi cho khách
+        customer_msg = Message(
+            subject="Xác nhận đơn hàng - DKhanh Tea House",
+            recipients=[customer_email]
+        )
+        customer_msg.body = f"""
+Xin chào {user.get('name', 'bạn')},
+
+Cảm ơn bạn đã đặt hàng tại DKhanh Tea House.
+
+Chi tiết đơn hàng của bạn:
+{order_detail}
+
+Tổng tiền: {total}k
+
+Chúng tôi sẽ xử lý đơn hàng sớm nhất có thể.
+
+Trân trọng,
+DKhanh Tea House
+"""
+        mail.send(customer_msg)
+
+        return jsonify({"message": "Thanh toán thành công và đã gửi email!"}), 200
+
+    except Exception as e:
+        print("Lỗi checkout:", e)
+        return jsonify({"error": f"Có lỗi xảy ra: {str(e)}"}), 500
 @app.route("/logout")
 def logout():
     session.clear()
