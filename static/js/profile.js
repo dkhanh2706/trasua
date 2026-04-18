@@ -1,4 +1,25 @@
 document.addEventListener("DOMContentLoaded", function () {
+  const avatarInput = document.getElementById("avatar-upload");
+  const avatarImg = document.getElementById("avatarImg");
+  const avatarPlaceholder = document.getElementById("avatarPlaceholder");
+
+  if (avatarInput && avatarImg) {
+    avatarInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          avatarImg.src = event.target.result;
+          avatarImg.style.display = "block";
+          if (avatarPlaceholder) {
+            avatarPlaceholder.style.display = "none";
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
   const reviewForm = document.getElementById("reviewForm");
 
   if (!reviewForm) return;

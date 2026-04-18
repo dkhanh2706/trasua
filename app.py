@@ -583,5 +583,120 @@ def logout():
     flash("Bạn đã đăng xuất thành công.", "success")
     return redirect(url_for("login"))
 
+@app.route("/admin-login", methods=["GET", "POST"])
+def admin_login():
+    current_admin = users.get(session.get("admin_email"))
+    if current_admin:
+        return redirect(url_for("admin_dashboard"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not email or not password:
+            flash("Vui lòng nhập email và mật khẩu.", "error")
+            return redirect(url_for("admin_login"))
+
+        user = users.get(email)
+        if user and user["password"] == password and user.get("is_admin", False):
+            session["admin_email"] = email
+            flash(f"Đăng nhập admin thành công!", "success")
+            return redirect(url_for("admin_dashboard"))
+
+        flash("Email hoặc mật khẩu không đúng hoặc không có quyền admin.", "error")
+        return redirect(url_for("admin_login"))
+
+    return render_template("admin_login.html")
+
+def get_current_admin():
+    email = session.get("admin_email")
+    return users.get(email)
+
+@app.route("/admin")
+def admin_dashboard():
+    admin_user = get_current_admin()
+    if not admin_user:
+        flash("Vui lòng đăng nhập admin để truy cập trang quản trị.", "error")
+        return redirect(url_for("admin_login"))
+    
+    if not admin_user.get("is_admin", False):
+        flash("Bạn không có quyền truy cập trang quản trị.", "error")
+        return redirect(url_for("admin_login"))
+    
+    user_list = []
+    for email, u in users.items():
+        user_list.append({
+            "email": email,
+            "name": u.get("name"),
+            "is_admin": u.get("is_admin", False)
+        })
+    
+    return render_template("admin.html", user=admin_user, users=user_list)
+
+@app.route("/admin/change-password", methods=["POST"])
+def admin_change_password():
+    admin_user = get_current_admin()
+    if not admin_user or not admin_user.get("is_admin", False):
+        flash("Bạn không có quyền thực hiện thao tác này.", "error")
+        return redirect(url_for("admin_login"))
+    
+    target_email = request.form.get("email", "").strip()
+    new_password = request.form.get("new_password", "").strip()
+    confirm_password = request.form.get("confirm_password", "").strip()
+    
+    if not target_email or not new_password:
+        flash("Vui lòng nhập đầy đủ thông tin.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    if target_email not in users:
+        flash("Người dùng không tồn tại.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    if target_email == admin_user["email"]:
+        flash("Bạn không thể đổi mật khẩu cho ch��nh mình tại đây.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    if new_password != confirm_password:
+        flash("Mật khẩu xác nhận không khớp.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    users[target_email]["password"] = new_password
+    save_users()
+    flash(f"Đã đổi mật khẩu cho {users[target_email]['name']}.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/delete-user", methods=["POST"])
+def admin_delete_user():
+    admin_user = get_current_admin()
+    if not admin_user or not admin_user.get("is_admin", False):
+        flash("Bạn không có quyền thực hiện thao tác này.", "error")
+        return redirect(url_for("admin_login"))
+    
+    target_email = request.form.get("email", "").strip()
+    
+    if not target_email:
+        flash("Email không hợp lệ.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    if target_email not in users:
+        flash("Người dùng không tồn tại.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    if target_email == admin_user["email"]:
+        flash("Bạn không thể xóa tài khoản của chính mình.", "error")
+        return redirect(url_for("admin_dashboard"))
+    
+    target_name = users[target_email]["name"]
+    del users[target_email]
+    save_users()
+    flash(f"Đã xóa tài khoản của {target_name}.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("admin_email", None)
+    flash("Đăng xuất admin thành công.", "success")
+    return redirect(url_for("admin_login"))
+
 if __name__ == "__main__":
     app.run(debug=True)

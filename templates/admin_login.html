@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - TraSua</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --primary: #e74c3c;
+        --primary-dark: #c0392b;
+        --text: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --blue: #3b82f6;
+      }
+      body { font-family: 'Be Vietnam Pro', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e293b 100%); position: relative; overflow: hidden; }
+      
+      /* Background decorations */
+      body::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 20% 80%, rgba(231,76,60,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(59,130,246,0.1) 0%, transparent 50%); animation: bgMove 20s ease-in-out infinite; }
+      @keyframes bgMove { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-5%, 5%); } }
+      
+      .login-wrapper { width: 100%; max-width: 440px; padding: 20px; position: relative; z-index: 1; }
+      
+      .login-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(20px); border-radius: 24px; padding: 48px 40px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); }
+      
+      .login-header { text-align: center; margin-bottom: 36px; }
+      .login-icon-wrapper { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #f87171); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(231,76,60,0.3); }
+      .login-icon-wrapper i { font-size: 2.2em; color: #fff; }
+      .login-title { color: var(--text); font-size: 1.8em; font-weight: 700; margin-bottom: 8px; }
+      .login-subtitle { color: var(--text-muted); font-size: 1em; }
+
+      .flash-box { margin-bottom: 24px; }
+      .flash-msg { padding: 14px 18px; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; font-weight: 500; }
+      .flash-msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+      .flash-msg.error i { color: #ef4444; }
+      .flash-msg.success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+      .flash-msg.success i { color: #10b981; }
+
+      .form-group { margin-bottom: 24px; }
+      .form-label { display: block; color: var(--text); font-weight: 600; margin-bottom: 10px; font-size: 0.95em; }
+      .form-input { width: 100%; padding: 16px 18px; border: 2px solid var(--border); border-radius: 12px; font-size: 1em; transition: all 0.2s; background: #f8fafc; }
+      .form-input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(231,76,60,0.1); }
+      .form-input::placeholder { color: #94a3b8; }
+
+      .btn-login { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary), #c0392b); color: #fff; border: none; border-radius: 12px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(231,76,60,0.3); }
+      .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(231,76,60,0.4); }
+      .btn-login:active { transform: translateY(0); }
+
+      .login-footer { text-align: center; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--border); }
+      .login-footer a { color: var(--blue); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+      .login-footer a:hover { color: #2563eb; transform: translateX(-3px); }
+
+      /* Decorative bubbles */
+      .bubble { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.05); animation: float 6s ease-in-out infinite; }
+      .bubble:nth-child(1) { width: 300px; height: 300px; top: 10%; right: -100px; animation-delay: 0s; }
+      .bubble:nth-child(2) { width: 150px; height: 150px; bottom: 20%; left: -50px; animation-delay: 2s; }
+      .bubble:nth-child(3) { width: 80px; height: 80px; top: 60%; right: 10%; animation-delay: 4s; }
+      @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    </style>
+  </head>
+  <body>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-icon-wrapper">
+            <i class="fas fa-mug-hot"></i>
+          </div>
+          <h1 class="login-title">Admin Panel</h1>
+          <p class="login-subtitle">Đăng nhập để quản trị hệ thống</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+          <div class="flash-box">
+            {% for category, message in messages %}
+            <div class="flash-msg {{ category }}"><i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>{{ message }}</div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('admin_login') }}">
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
+            <input type="email" name="email" class="form-input" required placeholder="admin@trasua.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fas fa-lock"></i> Mật khẩu</label>
+            <input type="password" name="password" class="form-input" required placeholder="••••••••" />
+          </div>
+          <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+          </button>
+        </form>
+        
+        <div class="login-footer">
+          <a href="{{ url_for('login') }}"><i class="fas fa-arrow-left"></i> Quay lại trang đăng nhập</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

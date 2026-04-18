@@ -6,9 +6,10 @@
     <div class="profile-header">
       <div class="profile-avatar-wrapper">
         {% if user.avatar %}
-        <img src="{{ user.avatar }}" alt="Avatar" class="profile-avatar" />
+        <img src="{{ user.avatar }}" alt="Avatar" class="profile-avatar" id="avatarImg" />
         {% else %}
-        <div class="profile-avatar-placeholder">👤</div>
+        <img src="" alt="Avatar" class="profile-avatar" id="avatarImg" style="display: none;" />
+        <div class="profile-avatar-placeholder" id="avatarPlaceholder">👤</div>
         {% endif %}
         <label for="avatar-upload" class="avatar-edit-btn">📷</label>
       </div>
