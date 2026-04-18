@@ -21,6 +21,7 @@
             <li><a href="{{ url_for('milk_tea') }}" class="{% if request.endpoint == 'milk_tea' %}nav-active{% endif %}">Trà sữa</a></li>
             <li><a href="{{ url_for('che') }}" class="{% if request.endpoint == 'che' %}nav-active{% endif %}">Chè</a></li>
             <li><a href="{{ url_for('fried') }}" class="{% if request.endpoint == 'fried' %}nav-active{% endif %}">Đồ chiên</a></li>
+            <li><a href="{{ url_for('cart') }}" class="{% if request.endpoint == 'cart' %}nav-active{% endif %}">Giỏ hàng</a></li>
             <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}nav-active{% endif %}">Hồ sơ</a></li>
           </ul>
         </nav>

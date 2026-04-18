@@ -1,0 +1,444 @@
+{% extends "base.html" %} {% block content %}
+<div class="page-section">
+  <h1>Giỏ hàng của bạn</h1>
+  <p class="section-lead">
+    Quản lý đơn hàng và chọn phương thức thanh toán phù hợp.
+  </p>
+
+  <div class="cart-page-layout">
+    <div class="cart-items-section">
+      <div id="cartItemsContainer">
+        <p class="cart-empty-message">Giỏ hàng trống. Hãy thêm món từ <a href="{{ url_for('milk_tea') }}">Trà sữa</a>, <a href="{{ url_for('che') }}">Chè</a>, hoặc <a href="{{ url_for('fried') }}">Đồ chiên</a> nhé!</p>
+      </div>
+    </div>
+
+    <div class="cart-summary-section">
+      <div class="cart-summary-card">
+        <h3>Tổng cộng</h3>
+        <div class="cart-total-display">
+          <span>Tổng tiền:</span>
+          <span id="cartTotalAmount">0k</span>
+        </div>
+
+        <div class="cart-form-group">
+          <label for="customerEmail">Email của bạn:</label>
+          <input
+            type="email"
+            id="customerEmail"
+            placeholder="Nhập email của bạn"
+            value="{{ user.email if user else '' }}"
+            required
+          />
+        </div>
+
+        <div class="cart-form-group">
+          <label>Phương thức thanh toán:</label>
+          <div class="payment-options">
+            <label class="payment-option">
+              <input
+                type="radio"
+                name="payment_method"
+                value="bank_transfer"
+                checked
+              />
+              <div class="payment-card">
+                <span class="payment-icon">💳</span>
+                <span class="payment-text">Chuyển khoản BIDV</span>
+                <span class="payment-desc">Quét QR thanh toán</span>
+              </div>
+            </label>
+            <label class="payment-option">
+              <input
+                type="radio"
+                name="payment_method"
+                value="email_payment"
+              />
+              <div class="payment-card">
+                <span class="payment-icon">📧</span>
+                <span class="payment-text">Thanh toán qua email</span>
+                <span class="payment-desc">Nhận hóa đơn qua email</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <button class="btn-checkout-full" id="checkoutBtn">
+          Thanh toán ngay
+        </button>
+      </div>
+
+      <div class="qr-modal" id="qrModal">
+        <div class="qr-modal-content">
+          <button class="qr-modal-close" onclick="closeQRModal()">&times;</button>
+          <h3>Quét QR chuyển khoản</h3>
+          <p class="qr-instruction">Sử dụng app ngân hàng để quét mã QR bên dưới:</p>
+          <div class="qr-image-wrapper">
+            <img id="qrImage" src="" alt="QR Code" />
+          </div>
+          <div class="qr-bank-info">
+            <p><strong>Ngân hàng:</strong> <span id="qrBank">BIDV</span></p>
+            <p><strong>Số tài khoản:</strong> <span id="qrAccountNo">0963176945</span></p>
+            <p><strong>Tên tài khoản:</strong> <span id="qrAccountName">TRAN VAN DUY KHANH</span></p>
+            <p><strong>Số tiền:</strong> <span id="qrAmount"></span></p>
+          </div>
+          <p class="qr-note">Vui lòng chuyển khoản đúng số tiền để h��� thống tự động xác nhận.</p>
+          <button class="btn-confirm-paid" onclick="confirmPaid()">Đã chuyển khoản xong</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.cart-page-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  align-items: start;
+}
+
+.cart-items-section {
+  background: var(--surface-light);
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cart-empty-message {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 20px;
+  font-size: 1.1rem;
+}
+
+.cart-empty-message a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cart-empty-message a:hover {
+  text-decoration: underline;
+}
+
+.cart-summary-section {
+  position: sticky;
+  top: 100px;
+}
+
+.cart-summary-card {
+  background: var(--surface-light);
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cart-summary-card h3 {
+  margin: 0 0 20px;
+  font-size: 1.4rem;
+  color: var(--text);
+}
+
+.cart-total-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.cart-total-display span:first-child {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cart-total-display span:last-child {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cart-form-group {
+  margin-bottom: 24px;
+}
+
+.cart-form-group label {
+  display: block;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.cart-form-group input[type="email"] {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 1rem;
+  color: var(--text);
+  transition: all 0.25s ease;
+}
+
+.cart-form-group input[type="email"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 6px rgba(255, 107, 157, 0.15);
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-option {
+  cursor: pointer;
+}
+
+.payment-option input {
+  display: none;
+}
+
+.payment-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  transition: all 0.25s ease;
+  background: var(--surface);
+}
+
+.payment-option input:checked + .payment-card {
+  border-color: var(--primary);
+  background: rgba(255, 107, 157, 0.1);
+}
+
+.payment-icon {
+  font-size: 1.8rem;
+}
+
+.payment-text {
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.payment-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.btn-checkout-full {
+  width: 100%;
+  padding: 18px;
+  background: var(--gradient);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+}
+
+.btn-checkout-full:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(168, 85, 247, 0.4);
+}
+
+.cart-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-info h4 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.cart-item-details {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.cart-item-qty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cart-item-price {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-left: 16px;
+}
+
+.cart-item-remove {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 1.4rem;
+  padding: 8px;
+  margin-left: 12px;
+  transition: transform 0.2s ease;
+}
+
+.cart-item-remove:hover {
+  transform: scale(1.2);
+}
+
+.qr-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.qr-modal.active {
+  display: flex;
+}
+
+.qr-modal-content {
+  background: var(--surface-light);
+  border-radius: 24px;
+  padding: 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.qr-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 2rem;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.qr-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.qr-modal-content h3 {
+  margin: 0 0 12px;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.qr-instruction {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.qr-image-wrapper {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.qr-image-wrapper img {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+}
+
+.qr-bank-info {
+  text-align: left;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.qr-bank-info p {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.qr-bank-info p:last-child {
+  margin-bottom: 0;
+}
+
+.qr-bank-info strong {
+  color: var(--text);
+}
+
+.qr-note {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.btn-confirm-paid {
+  width: 100%;
+  padding: 16px;
+  background: var(--gradient);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-confirm-paid:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 900px) {
+  .cart-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-summary-section {
+    position: static;
+  }
+}
+</style>
+
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% endblock %}

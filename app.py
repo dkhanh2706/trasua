@@ -1,9 +1,12 @@
 import json
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+import io
+import base64
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 from flask_mail import Mail, Message
 from datetime import datetime
 from werkzeug.utils import secure_filename
+import qrcode
 
 app = Flask(__name__)
 app.secret_key = "replace-with-a-secure-value"
@@ -577,6 +580,57 @@ Duy Khánh
         print("Lỗi add_review:", e)
         return jsonify({"message": f"Có lỗi xảy ra: {str(e)}"}), 500
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Bạn đã đăng xuất thành công.", "success")
+    return redirect(url_for("login"))
+
+@app.route("/cart")
+def cart():
+    user = get_current_user()
+    if not user:
+        flash("Vui lòng đăng nhập để xem giỏ hàng.", "error")
+        return redirect(url_for("login"))
+    return render_template("cart.html", user=user, show_nav=True)
+
+@app.route("/generate-qr", methods=["POST"])
+def generate_qr():
+    try:
+        data = request.get_json()
+        amount = data.get("amount", 0)
+        
+        bank_id = "BIDV"
+        account_no = "0963176945"
+        account_name = "Hoàng Duy Khánh"
+        template = "compact"
+        
+        qr_content = f"https://img.vietqr.io/image/{bank_id}-{account_no}-{template}.png?amount={amount}&addInfo=Thanh+toan+don+hang+DKhanh+Tea+House"
+        
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_content)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        
+        img_base64 = base64.b64encode(buffer.getvalue()).decode()
+        
+        return jsonify({
+            "qr_image": f"data:image/png;base64,{img_base64}",
+            "qr_url": qr_content,
+            "bank": bank_id,
+            "account_no": account_no,
+            "account_name": account_name,
+            "amount": amount
+        })
+    except Exception as e:
+        print("Lỗi generate_qr:", e)
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/checkout", methods=["POST"])
 def checkout():
     user = get_current_user()
@@ -585,19 +639,20 @@ def checkout():
 
     try:
         data = request.get_json()
-
         if not data:
             return jsonify({"error": "Không nhận được dữ liệu đơn hàng."}), 400
 
+        payment_method = data.get("payment_method", "")
         customer_email = data.get("customer_email", "").strip()
         items = data.get("items", [])
         total = data.get("total", 0)
-
+        
         if not customer_email:
             return jsonify({"error": "Vui lòng nhập email."}), 400
-
         if not items:
             return jsonify({"error": "Giỏ hàng trống."}), 400
+        if not payment_method:
+            return jsonify({"error": "Vui lòng chọn phương thức thanh toán."}), 400
 
         order_lines = []
         for idx, item in enumerate(items, start=1):
@@ -626,56 +681,99 @@ def checkout():
 
         order_detail = "\n\n".join(order_lines)
 
-        # Mail gửi cho admin / chủ shop
-        admin_msg = Message(
-            subject="Đơn hàng mới từ website",
-            recipients=[app.config["MAIL_USERNAME"]]
-        )
-        admin_msg.body = f"""
-Có đơn hàng mới từ website.
+        if payment_method == "bank_transfer":
+            admin_msg = Message(
+                subject=f"Đơn hàng mới - Chuyển khoản - {total}k",
+                recipients=[app.config["MAIL_USERNAME"]]
+            )
+            admin_msg.body = f"""
+Có đơn hàng mới từ website (Thanh toán chuyển khoản).
 
 Khách hàng: {user.get('name', 'Không rõ')}
-Email khách nhập: {customer_email}
+Email khách: {customer_email}
 
 Chi tiết đơn hàng:
 {order_detail}
 
 Tổng tiền: {total}k
+Phương thức: Chuyển khoản BIDV - 0963176945
 """
-        mail.send(admin_msg)
+            mail.send(admin_msg)
 
-        # Mail xác nhận gửi cho khách
-        customer_msg = Message(
-            subject="Xác nhận đơn hàng - DKhanh Tea House",
-            recipients=[customer_email]
-        )
-        customer_msg.body = f"""
+            customer_msg = Message(
+                subject="Xác nhận đơn hàng - DKhanh Tea House",
+                recipients=[customer_email]
+            )
+            customer_msg.body = f"""
 Xin chào {user.get('name', 'bạn')},
 
 Cảm ơn bạn đã đặt hàng tại DKhanh Tea House.
 
-Chi tiết đơn hàng của bạn:
+Chi tiết đơn hàng:
 {order_detail}
 
 Tổng tiền: {total}k
 
-Chúng tôi sẽ xử lý đơn hàng sớm nhất có thể.
+Phương thức thanh toán: Chuyển khoản BIDV
+Số tài khoản: 0963176945
+Tên: Hoàng DUY KHÁNH
+Nội dung: Thanh toan don hang DKhanh Tea House
+
+Vui lòng chuyển khoản đúng số tiền. Chúng tôi sẽ xác nhận sau khi nhận được tiền.
 
 Trân trọng,
 DKhanh Tea House
 """
-        mail.send(customer_msg)
+            mail.send(customer_msg)
+            return jsonify({"message": "Đơn hàng đã được xác nhận! Vui lòng chuyển khoản theo thông tin QR.", "payment_method": "bank_transfer"}), 200
+        
+        elif payment_method == "email_payment":
+            admin_msg = Message(
+                subject=f"Đơn hàng mới - Thanh toán qua email - {total}k",
+                recipients=[app.config["MAIL_USERNAME"]]
+            )
+            admin_msg.body = f"""
+Có đơn hàng mới từ website (Thanh toán qua email).
 
-        return jsonify({"message": "Cảm ơn rất nhiều, thanh toán momo đã bị khóa!"}), 200
+Khách hàng: {user.get('name', 'Không rõ')}
+Email khách: {customer_email}
+
+Chi tiết đơn hàng:
+{order_detail}
+
+Tổng tiền: {total}k
+Phương thức: Thanh toán qua email
+"""
+            mail.send(admin_msg)
+
+            customer_msg = Message(
+                subject="Xác nhận đơn hàng - DKhanh Tea House",
+                recipients=[customer_email]
+            )
+            customer_msg.body = f"""
+Xin chào {user.get('name', 'bạn')},
+
+Cảm ơn bạn đã đặt hàng tại DKhanh Tea House.
+
+Chi tiết đơn hàng:
+{order_detail}
+
+Tổng tiền: {total}k
+
+Phương thức thanh toán: Thanh toán qua email
+Chúng tôi sẽ gửi hóa đơn chi tiết qua email sau.
+
+Trân trọng,
+DKhanh Tea House
+"""
+            mail.send(customer_msg)
+            return jsonify({"message": "Đơn hàng đã được xác nhận! Chúng tôi sẽ gửi email thanh toán cho bạn.", "payment_method": "email_payment"}), 200
+
+        return jsonify({"error": "Phương thức thanh toán không hợp lệ."}), 400
 
     except Exception as e:
         print("Lỗi checkout:", e)
         return jsonify({"error": f"Có lỗi xảy ra: {str(e)}"}), 500
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("Bạn đã đăng xuất thành công.", "success")
-    return redirect(url_for("login"))
 
 @app.route("/admin-login", methods=["GET", "POST"])
 def admin_login():
