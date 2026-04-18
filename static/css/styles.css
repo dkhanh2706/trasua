@@ -1564,6 +1564,8 @@ h1 {
 .hot-card {
   border: 2px solid rgba(255, 107, 157, 0.3);
   position: relative;
+  flex: 0 0 260px;
+  width: 260px;
 }
 
 .hot-month-section {
@@ -1996,6 +1998,8 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
   transition: all 0.25s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
 .cart-toggle:hover {

@@ -163,6 +163,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const total = getCartTotal();
 
+    // Set loading state for email payment
+    const originalBtnText = checkoutBtn.textContent;
+    const isEmailPayment = paymentMethod === "email_payment";
+    if (isEmailPayment) {
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = "Đang gửi mail...";
+    }
+
     try {
       if (paymentMethod === "bank_transfer") {
         const qrRes = await fetch("/generate-qr", {
@@ -214,6 +222,11 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (err) {
       console.error(err);
       alert("Không kết nối được server!");
+    } finally {
+      if (isEmailPayment) {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = originalBtnText;
+      }
     }
   });
 });

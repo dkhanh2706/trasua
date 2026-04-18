@@ -177,15 +177,15 @@
   </div>
 </div>
 
-<button class="cart-toggle" onclick="toggleCart()">
+<a href="{{ url_for('cart') }}" class="cart-toggle">
   <span class="cart-icon">🛒</span>
   <span class="cart-count" id="cartCount">0</span>
-</button>
+</a>
 
 <!-- Footer -->
 <footer class="site-footer">
   <div class="footer-grid">
-    div class="footer-section">
+     <div class="footer-section">
       <h3>Liên hệ</h3>
       <div class="contact-item">
         <span class="contact-icon">📍</span>

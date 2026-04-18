@@ -755,13 +755,13 @@ Số tài khoản: 0963176945
 Tên: Hoàng DUY KHÁNH
 Nội dung: Thanh toan don hang DKhanh Tea House
 
-Vui lòng chuyển khoản đúng số tiền. Chúng tôi sẽ xác nhận sau khi nhận được tiền.
+Vui lòng chuyển khoản. Chúng tôi sẽ xác nhận sau khi nhận được tiền.
 
 Trân trọng,
 DKhanh Tea House
 """
             mail.send(customer_msg)
-            return jsonify({"message": "Đơn hàng đã được xác nhận! Vui lòng chuyển khoản theo thông tin QR.", "payment_method": "bank_transfer"}), 200
+            return jsonify({"message": "Đơn hàng đã được xác nhận! Cảm ơn bạn đã đặt hàng.", "payment_method": "bank_transfer"}), 200
         
         elif payment_method == "email_payment":
             admin_msg = Message(

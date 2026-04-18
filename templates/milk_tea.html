@@ -305,10 +305,10 @@
   </div>
 </div>
 
-<button class="cart-toggle" onclick="toggleCart()">
+<a href="{{ url_for('cart') }}" class="cart-toggle">
   <span class="cart-icon">🛒</span>
   <span class="cart-count" id="cartCount">0</span>
-</button>
+</a>
 
 <!-- Footer -->
 <footer class="site-footer">
