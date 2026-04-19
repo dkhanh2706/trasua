@@ -2,3 +2,4 @@ Flask==2.3.2
 Flask-Mail
 bcrypt
 qrcode[pil]
+gunicorn==20.1.0
