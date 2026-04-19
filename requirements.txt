@@ -3,3 +3,4 @@ Flask-Mail
 bcrypt
 qrcode[pil]
 gunicorn==20.1.0
+setuptools
