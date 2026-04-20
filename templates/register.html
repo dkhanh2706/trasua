@@ -6,7 +6,13 @@
       <p class="tagline">Tạo tài khoản để lưu đơn hàng trà sữa nhanh chóng.</p>
       <form action="{{ url_for('register') }}" method="post" class="auth-form">
         <label for="name">👤 Tên</label>
-        <input type="text" id="name" name="name" placeholder="Nhập tên" required />
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="Nhập tên"
+          required
+        />
 
         <label for="email">📧 Email</label>
         <input
@@ -40,7 +46,7 @@
           type="text"
           id="admin_code"
           name="admin_code"
-          placeholder="Nhập duykhanh để làm admin"
+          placeholder="Nhập mã admin"
         />
 
         <button type="submit">🎉 Đăng ký</button>
